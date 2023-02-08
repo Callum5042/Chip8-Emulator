@@ -1,5 +1,11 @@
 #include <iostream>
 #include <Windows.h>
+#include <fstream>
+#include <chrono>
+#include <thread>
+#include "Chip8.h"
+
+Chip8 emulator;
 
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -8,6 +14,31 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			return 0;
+
+		case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hwnd, &ps);
+
+			// All painting occurs here, between BeginPaint and EndPaint.
+			FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+
+
+			int videoPitch = sizeof(emulator.video[0]) * VIDEO_WIDTH;
+
+			for (int i = 0; i < 64; ++i)
+			{
+				for (int j = 0; j < 32; ++j)
+				{
+					int xpos = emulator.video[i];
+					int ypos = emulator.video[i];
+					SetPixel(hdc, xpos, ypos, RGB(0, 0, 0));
+				}
+			}
+
+			EndPaint(hwnd, &ps);
+			return 0;
+		}
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -40,6 +71,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	ShowWindow(m_Hwnd, SW_SHOWNORMAL);
 
+	// Emulator
+	emulator.LoadROM("test_opcode.ch8");
+
+	int videoPitch = sizeof(emulator.video[0]) * VIDEO_WIDTH;
+
 	// Loop
 	MSG msg = {};
 	bool m_IsRunning = true;
@@ -55,6 +91,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			TranslateMessage(&msg);
 			DispatchMessageW(&msg);
 		}
+
+		emulator.Cycle();
+
+		RedrawWindow(m_Hwnd, NULL, NULL, RDW_INVALIDATE);
+
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(16ms);
 	}
 
 	DestroyWindow(m_Hwnd);

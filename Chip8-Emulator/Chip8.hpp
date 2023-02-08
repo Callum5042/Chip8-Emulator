@@ -144,9 +144,9 @@ private:
 	uint16_t opcode{};
 
 	std::default_random_engine randGen;
-	std::uniform_int_distribution<int> randByte;
+	std::uniform_int_distribution<uint16_t> randByte;
 
-	typedef void (Chip8::* Chip8Func)();
+	typedef void (Chip8::*Chip8Func)();
 	Chip8Func table[0xF + 1];
 	Chip8Func table0[0xE + 1];
 	Chip8Func table8[0xE + 1];

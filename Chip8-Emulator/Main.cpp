@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <SDL.h>
+#include "Renderer.h"
 
 void KeyDown(SDL_Keycode keycode, uint8_t* keys)
 {
@@ -165,19 +166,9 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	if (renderer == nullptr)
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "SDL_CreateRenderer failed", nullptr);
-		return -1;
-	}
-
-	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, VIDEO_WIDTH, VIDEO_HEIGHT);
-	if (texture == nullptr)
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "SDL_CreateTexture failed", nullptr);
-		return -1;
-	}
+	// Create renderer
+	DX::Renderer renderer(window);
+	renderer.Create();
 
 	// Emulation core
 	Chip8 chip8;
@@ -211,10 +202,8 @@ int main(int argc, char** argv)
 		chip8.Cycle();
 
 		// Update
-		SDL_UpdateTexture(texture, nullptr, chip8.video, video_pitch);
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-		SDL_RenderPresent(renderer);
+		renderer.Clear();
+		renderer.Present();
 	}
 
 	return 0;

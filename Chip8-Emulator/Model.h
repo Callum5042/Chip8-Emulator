@@ -29,8 +29,12 @@ namespace DX
 
 		// Number of vertices to draw
 		UINT m_VertexCount = 0;
+		UINT m_IndexCount = 0;
 
 		// Vertex buffer
 		ComPtr<ID3D11Buffer> m_d3dVertexBuffer = nullptr;
+
+		// Index buffer
+		ComPtr<ID3D11Buffer> m_d3dIndexBuffer = nullptr;
 	};
 }

@@ -45,6 +45,12 @@ namespace DX
 
 		// Display the rendered scene
 		void Present();
+		
+		// Get the ID3D11 Device
+		ID3D11Device* GetDevice() const { return m_d3dDevice.Get(); }
+
+		// Get the ID3D11 Device Context
+		ID3D11DeviceContext* GetDeviceContext() const { return m_d3dDeviceContext.Get(); }
 
 	private:
 		SDL_Window* m_SdlWindow = nullptr;

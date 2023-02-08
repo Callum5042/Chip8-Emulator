@@ -4,6 +4,8 @@
 #include <string>
 #include <SDL.h>
 #include "Renderer.h"
+#include "Shader.h"
+#include "Model.h"
 
 void KeyDown(SDL_Keycode keycode, uint8_t* keys)
 {
@@ -170,6 +172,16 @@ int main(int argc, char** argv)
 	DX::Renderer renderer(window);
 	renderer.Create();
 
+	// Create shader
+	DX::Shader shader(&renderer);
+	shader.LoadPixelShader("D:\\Sources\\Chip8-Emulator\\bin\\x64-Debug\\PixelShader.cso");
+	shader.LoadVertexShader("D:\\Sources\\Chip8-Emulator\\bin\\x64-Debug\\VertexShader.cso");
+	shader.Use();
+
+	// Model
+	DX::Model model(&renderer);
+	model.Create();
+
 	// Emulation core
 	Chip8 chip8;
 	chip8.LoadROM("test_opcode.ch8");
@@ -203,6 +215,9 @@ int main(int argc, char** argv)
 
 		// Update
 		renderer.Clear();
+
+		model.Render();
+
 		renderer.Present();
 	}
 

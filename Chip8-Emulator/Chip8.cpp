@@ -1,4 +1,4 @@
-#include "Chip8.hpp"
+#include "Chip8.h"
 #include <chrono>
 #include <cstdint>
 #include <cstring>
@@ -32,8 +32,7 @@ uint8_t fontset[FONTSET_SIZE] =
 	};
 
 
-Chip8::Chip8()
-	: randGen(std::chrono::system_clock::now().time_since_epoch().count())
+Chip8::Chip8() : randGen((unsigned int)std::chrono::system_clock::now().time_since_epoch().count())
 {
 	// Initialize PC
 	pc = START_ADDRESS;

@@ -14,10 +14,10 @@ void DX::Model::Create()
 	// Vertex data
 	std::vector<Vertex> vertices =
 	{
-		{ -0.5f, +0.5f, 0.0f, -1.0f, +1.0f }, // Top left vertex
-		{ +0.5f, +0.5f, 0.0f, +1.0f, +1.0f }, // Top right vertex
-		{ -0.5f, -0.5f, 0.0f, -1.0f, -1.0f } , // Bottom left vertex
-		{ +0.5f, -0.5f, 0.0f, +1.0f, -1.0f }, // Bottom right vertex
+		{ -1.0f, +1.0f, 0.0f, -1.0f, +1.0f }, // Top left vertex
+		{ +1.0f, +1.0f, 0.0f, +1.0f, +1.0f }, // Top right vertex
+		{ -1.0f, -1.0f, 0.0f, -1.0f, -1.0f } , // Bottom left vertex
+		{ +1.0f, -1.0f, 0.0f, +1.0f, -1.0f }, // Bottom right vertex
 	};
 
 	m_VertexCount = static_cast<UINT>(vertices.size());

@@ -87,14 +87,14 @@ void DX::Model::UpdateTexture(void* video_buffer, int video_pitch)
 
 	D3D11_MAPPED_SUBRESOURCE resource = {};
 
-	//  Disable GPU access to the vertex buffer data.
+	//  Disable GPU access to the vertex buffer data
 	deviceContext->Map(m_Texture.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
 
 	// Data
 	Uint8* src = (Uint8*)video_buffer;
 	Uint8* dst = (Uint8*)resource.pData;
 
-	//  Update the vertex buffer here.
+	// Update the texture
 	const int HEIGHT = 32;
 	for (int row = 0; row < HEIGHT; ++row)
 	{
@@ -103,7 +103,7 @@ void DX::Model::UpdateTexture(void* video_buffer, int video_pitch)
 		dst += resource.RowPitch;
 	}
 
-	//  Enable GPU access to the vertex buffer data.
+	//  Enable GPU access to the vertex buffer data
 	deviceContext->Unmap(m_Texture.Get(), 0);
 }
 

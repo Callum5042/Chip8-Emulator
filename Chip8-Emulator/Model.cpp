@@ -14,10 +14,10 @@ void DX::Model::Create()
 	// Vertex data
 	std::vector<Vertex> vertices =
 	{
-		{ -1.0f, +1.0f, 0.0f, -1.0f, +1.0f }, // Top left vertex
+		{ -1.0f, +1.0f, 0.0f, -0.0f, +1.0f }, // Top left vertex
 		{ +1.0f, +1.0f, 0.0f, +1.0f, +1.0f }, // Top right vertex
-		{ -1.0f, -1.0f, 0.0f, -1.0f, -1.0f } , // Bottom left vertex
-		{ +1.0f, -1.0f, 0.0f, +1.0f, -1.0f }, // Bottom right vertex
+		{ -1.0f, -1.0f, 0.0f, -0.0f, -0.0f } , // Bottom left vertex
+		{ +1.0f, -1.0f, 0.0f, +1.0f, -0.0f }, // Bottom right vertex
 	};
 
 	m_VertexCount = static_cast<UINT>(vertices.size());
@@ -90,8 +90,18 @@ void DX::Model::UpdateTexture(void* video_buffer, int video_pitch)
 	//  Disable GPU access to the vertex buffer data.
 	deviceContext->Map(m_Texture.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
 
+	// Data
+	Uint8* src = (Uint8*)video_buffer;
+	Uint8* dst = (Uint8*)resource.pData;
+
 	//  Update the vertex buffer here.
-	std::memcpy(resource.pData, video_buffer, 32*64);
+	const int HEIGHT = 32;
+	for (int row = 0; row < HEIGHT; ++row)
+	{
+		SDL_memcpy(dst, src, resource.RowPitch);
+		src += video_pitch;
+		dst += resource.RowPitch;
+	}
 
 	//  Enable GPU access to the vertex buffer data.
 	deviceContext->Unmap(m_Texture.Get(), 0);

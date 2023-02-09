@@ -13,10 +13,10 @@ void DX::Model::Create()
 	// Vertex data
 	std::vector<Vertex> vertices =
 	{
-		{ -0.5f, +0.5f, 0.0f }, // Top left vertex
-		{ +0.5f, +0.5f, 0.0f }, // Top right vertex
-		{ -0.5f, -0.5f, 0.0f } , // Bottom left vertex
-		{ +0.5f, -0.5f, 0.0f }, // Bottom right vertex
+		{ -0.5f, +0.5f, 0.0f, -1.0f, +1.0f }, // Top left vertex
+		{ +0.5f, +0.5f, 0.0f, +1.0f, +1.0f }, // Top right vertex
+		{ -0.5f, -0.5f, 0.0f, -1.0f, -1.0f } , // Bottom left vertex
+		{ +0.5f, -0.5f, 0.0f, +1.0f, -1.0f }, // Bottom right vertex
 	};
 
 	m_VertexCount = static_cast<UINT>(vertices.size());
@@ -71,8 +71,13 @@ void DX::Model::Render()
 	d3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Bind texture to the pixel shader
-	// d3dDeviceContext->PSSetShaderResources(0, 1, m_DiffuseTexture.GetAddressOf());
+	d3dDeviceContext->PSSetShaderResources(0, 1, m_DiffuseTexture.GetAddressOf());
 
 	// Render geometry
 	d3dDeviceContext->DrawIndexed(m_IndexCount, 0, 0);
+}
+
+void DX::Model::LoadTexture()
+{
+
 }

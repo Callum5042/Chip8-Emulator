@@ -31,5 +31,8 @@ namespace DX
 
 		// Pixel shader
 		ComPtr<ID3D11PixelShader> m_d3dPixelShader = nullptr;
+
+		// Texture filter
+		ComPtr<ID3D11SamplerState> m_AnisotropicSampler = nullptr;
 	};
 }

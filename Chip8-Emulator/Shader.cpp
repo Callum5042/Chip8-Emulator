@@ -4,6 +4,18 @@
 
 DX::Shader::Shader(Renderer* renderer) : m_DxRenderer(renderer)
 {
+	D3D11_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MipLODBias = 0;
+	samplerDesc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = 1000.0f;
+
+	DX::Check(m_DxRenderer->GetDevice()->CreateSamplerState(&samplerDesc, &m_AnisotropicSampler));
 }
 
 void DX::Shader::LoadVertexShader(std::string&& vertex_shader_path)
@@ -52,4 +64,7 @@ void DX::Shader::Use()
 
 	// Bind the pixel shader to the pipeline's Pixel Shader stage
 	d3dDeviceContext->PSSetShader(m_d3dPixelShader.Get(), nullptr, 0);
+
+	// Bind pixel shader texture sampler
+	d3dDeviceContext->PSSetSamplers(0, 1, m_AnisotropicSampler.GetAddressOf());
 }

@@ -29,6 +29,9 @@ namespace DX
 		// Render the model
 		void Render();
 
+		// Update texture
+		void UpdateTexture(void* video_buffer, int video_pitch);
+
 	private:
 		DX::Renderer* m_DxRenderer = nullptr;
 
@@ -43,7 +46,8 @@ namespace DX
 		ComPtr<ID3D11Buffer> m_d3dIndexBuffer = nullptr;
 
 		// Texture resource
-		ComPtr<ID3D11ShaderResourceView> m_DiffuseTexture = nullptr;
-		void LoadTexture();
+		ComPtr<ID3D11Texture2D> m_Texture = nullptr;
+		ComPtr<ID3D11ShaderResourceView> m_TexturShadereResourceView = nullptr;
+		void CreateTexture();
 	};
 }

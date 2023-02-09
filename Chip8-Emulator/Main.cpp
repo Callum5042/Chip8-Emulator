@@ -207,6 +207,13 @@ int main(int argc, char** argv)
 				case SDL_KEYUP:
 					KeyUp(event.key.keysym.sym, chip8.keypad);
 					break;
+
+				case SDL_WINDOWEVENT:
+					if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+					{
+						renderer.Resize(event.window.data1, event.window.data2);
+					}
+					break;
 			}
 		}
 
@@ -216,6 +223,7 @@ int main(int argc, char** argv)
 		// Update
 		renderer.Clear();
 
+		model.UpdateTexture(chip8.video, video_pitch);
 		model.Render();
 
 		renderer.Present();

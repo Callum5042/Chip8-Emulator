@@ -1,6 +1,7 @@
 #include "Model.h"
-#include <DirectXMath.h>
 #include <vector>
+#include <DirectXMath.h>
+#include <DirectXColors.h>
 
 DX::Model::Model(DX::Renderer* renderer) : m_DxRenderer(renderer)
 {
@@ -51,6 +52,9 @@ void DX::Model::Create()
 	index_subdata.pSysMem = indices.data();
 
 	DX::Check(d3dDevice->CreateBuffer(&index_buffer_desc, &index_subdata, m_d3dIndexBuffer.ReleaseAndGetAddressOf()));
+
+	// Create texture
+	CreateTexture();
 }
 
 void DX::Model::Render()
@@ -71,13 +75,47 @@ void DX::Model::Render()
 	d3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Bind texture to the pixel shader
-	d3dDeviceContext->PSSetShaderResources(0, 1, m_DiffuseTexture.GetAddressOf());
+	d3dDeviceContext->PSSetShaderResources(0, 1, m_TexturShadereResourceView.GetAddressOf());
 
 	// Render geometry
 	d3dDeviceContext->DrawIndexed(m_IndexCount, 0, 0);
 }
 
-void DX::Model::LoadTexture()
+void DX::Model::UpdateTexture(void* video_buffer, int video_pitch)
 {
+	auto deviceContext = m_DxRenderer->GetDeviceContext();
 
+	D3D11_MAPPED_SUBRESOURCE resource = {};
+
+	//  Disable GPU access to the vertex buffer data.
+	deviceContext->Map(m_Texture.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+
+	//  Update the vertex buffer here.
+	std::memcpy(resource.pData, video_buffer, 32*64);
+
+	//  Enable GPU access to the vertex buffer data.
+	deviceContext->Unmap(m_Texture.Get(), 0);
+}
+
+void DX::Model::CreateTexture()
+{
+	auto d3dDevice = m_DxRenderer->GetDevice();
+
+	D3D11_TEXTURE2D_DESC desc = {};
+	desc.Width = 64;
+	desc.Height = 32;
+	desc.MipLevels = desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.SampleDesc.Count = 1;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	DX::Check(d3dDevice->CreateTexture2D(&desc, nullptr, m_Texture.GetAddressOf()));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+	SRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	SRVDesc.Texture2D.MipLevels = 1;
+	DX::Check(d3dDevice->CreateShaderResourceView(m_Texture.Get(), &SRVDesc, m_TexturShadereResourceView.GetAddressOf()));
 }

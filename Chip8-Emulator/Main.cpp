@@ -1,62 +1,233 @@
+#include "Chip8.h"
+#include <chrono>
 #include <iostream>
-#include <Windows.h>
+#include <string>
+#include <SDL.h>
+#include "Renderer.h"
+#include "Shader.h"
+#include "Model.h"
 
-LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+void KeyDown(SDL_Keycode keycode, uint8_t* keys)
 {
-	switch (msg)
+	switch (keycode)
 	{
-		case WM_DESTROY:
-			PostQuitMessage(0);
-			return 0;
-	}
+		case SDLK_x:
+			keys[0] = 1;
+			break;
 
-	return DefWindowProc(hwnd, msg, wParam, lParam);
+		case SDLK_1:
+			keys[1] = 1;
+			break;
+
+		case SDLK_2:
+			keys[2] = 1;
+			break;
+
+		case SDLK_3:
+			keys[3] = 1;
+			break;
+
+		case SDLK_q:
+			keys[4] = 1;
+			break;
+
+		case SDLK_w:
+			keys[5] = 1;
+			break;
+
+		case SDLK_e:
+			keys[6] = 1;
+			break;
+
+		case SDLK_a:
+			keys[7] = 1;
+			break;
+
+		case SDLK_s:
+			keys[8] = 1;
+			break;
+
+		case SDLK_d:
+			keys[9] = 1;
+			break;
+
+		case SDLK_z:
+			keys[0xA] = 1;
+			break;
+
+		case SDLK_c:
+			keys[0xB] = 1;
+			break;
+
+		case SDLK_4:
+			keys[0xC] = 1;
+			break;
+
+		case SDLK_r:
+			keys[0xD] = 1;
+			break;
+
+		case SDLK_f:
+			keys[0xE] = 1;
+			break;
+
+		case SDLK_v:
+			keys[0xF] = 1;
+			break;
+	}
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+void KeyUp(SDL_Keycode keycode, uint8_t* keys)
 {
-	// Setup window class
-	WNDCLASS wc = {};
-	wc.style = CS_VREDRAW | CS_HREDRAW;
-	wc.lpfnWndProc = MainWndProc;
-	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon(0, IDI_APPLICATION);
-	wc.hCursor = LoadCursor(0, IDC_ARROW);
-	wc.lpszClassName = L"Chip8-Emulator";
-
-	if (!RegisterClass(&wc))
+	switch (keycode)
 	{
-		MessageBox(NULL, L"Error", L"RegisterClass Failed", MB_OK | MB_ICONERROR);
+		case SDLK_x:
+			keys[0] = 0;
+			break;
+
+		case SDLK_1:
+			keys[1] = 0;
+			break;
+
+		case SDLK_2:
+			keys[2] = 0;
+			break;
+
+		case SDLK_3:
+			keys[3] = 0;
+			break;
+
+		case SDLK_q:
+			keys[4] = 0;
+			break;
+
+		case SDLK_w:
+			keys[5] = 0;
+			break;
+
+		case SDLK_e:
+			keys[6] = 0;
+			break;
+
+		case SDLK_a:
+			keys[7] = 0;
+			break;
+
+		case SDLK_s:
+			keys[8] = 0;
+			break;
+
+		case SDLK_d:
+			keys[9] = 0;
+			break;
+
+		case SDLK_z:
+			keys[0xA] = 0;
+			break;
+
+		case SDLK_c:
+			keys[0xB] = 0;
+			break;
+
+		case SDLK_4:
+			keys[0xC] = 0;
+			break;
+
+		case SDLK_r:
+			keys[0xD] = 0;
+			break;
+
+		case SDLK_f:
+			keys[0xE] = 0;
+			break;
+
+		case SDLK_v:
+			keys[0xF] = 0;
+			break;
+	}
+}
+
+int main(int argc, char** argv)
+{
+	// Initalise SDL
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "SDL_Init failed", nullptr);
 		return -1;
 	}
+
+	int video_scale = 10;
+	int width = VIDEO_WIDTH * video_scale;
+	int height = VIDEO_HEIGHT * video_scale;
 
 	// Create window
-	HWND m_Hwnd = CreateWindow(wc.lpszClassName, L"Chip 8 Emulator", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
-	if (m_Hwnd == NULL)
+	SDL_Window* window = SDL_CreateWindow("CHIP-8 Emulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	if (window == nullptr)
 	{
-		MessageBox(NULL, L"Error", L"CreateWindow Failed", MB_OK | MB_ICONERROR);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "SDL_CreateWindow failed", nullptr);
 		return -1;
 	}
 
-	ShowWindow(m_Hwnd, SW_SHOWNORMAL);
+	// Create renderer
+	DX::Renderer renderer(window);
+	renderer.Create();
 
-	// Loop
-	MSG msg = {};
-	bool m_IsRunning = true;
-	while (m_IsRunning)
+	// Create shader
+	DX::Shader shader(&renderer);
+	shader.LoadPixelShader("D:\\Sources\\Chip8-Emulator\\bin\\x64-Debug\\PixelShader.cso");
+	shader.LoadVertexShader("D:\\Sources\\Chip8-Emulator\\bin\\x64-Debug\\VertexShader.cso");
+	shader.Use();
+
+	// Model
+	DX::Model model(&renderer);
+	model.Create();
+
+	// Emulation core
+	Chip8 chip8;
+	chip8.LoadROM("test_opcode.ch8");
+	int video_pitch = sizeof(chip8.video[0]) * VIDEO_WIDTH;
+
+	// Message loop
+	bool quit = false;
+	while (!quit)
 	{
-		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		SDL_Event event = {};
+		while (SDL_PollEvent(&event))
 		{
-			if (msg.message == WM_QUIT)
+			switch (event.type)
 			{
-				m_IsRunning = false;
-			}
+				case SDL_QUIT:
+					quit = true;
+					break;
 
-			TranslateMessage(&msg);
-			DispatchMessageW(&msg);
+				case SDL_KEYDOWN:
+					KeyDown(event.key.keysym.sym, chip8.keypad);
+					break;
+
+				case SDL_KEYUP:
+					KeyUp(event.key.keysym.sym, chip8.keypad);
+					break;
+
+				case SDL_WINDOWEVENT:
+					if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+					{
+						renderer.Resize(event.window.data1, event.window.data2);
+					}
+					break;
+			}
 		}
+
+		// Execute instructions
+		chip8.Cycle();
+
+		// Update
+		renderer.Clear();
+
+		model.UpdateTexture(chip8.video, video_pitch);
+		model.Render();
+
+		renderer.Present();
 	}
 
-	DestroyWindow(m_Hwnd);
-	return static_cast<int>(msg.wParam);
+	return 0;
 }

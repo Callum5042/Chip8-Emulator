@@ -11,6 +11,7 @@ const unsigned int STACK_LEVELS = 16;
 const unsigned int VIDEO_HEIGHT = 32;
 const unsigned int VIDEO_WIDTH = 64;
 
+// https://en.wikipedia.org/wiki/CHIP-8
 
 class Chip8
 {

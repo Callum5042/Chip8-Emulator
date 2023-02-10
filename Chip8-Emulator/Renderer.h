@@ -1,7 +1,6 @@
 #pragma once
 
 #include <exception>
-#include <SDL_video.h>
 #include <d3d11_1.h>
 #include "Window.h"
 

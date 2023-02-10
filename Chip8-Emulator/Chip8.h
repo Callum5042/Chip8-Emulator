@@ -33,7 +33,4 @@ private:
 	uint16_t stack[STACK_LEVELS]{};
 	uint8_t sp{};
 	uint16_t opcode{};
-
-	std::default_random_engine randGen;
-	std::uniform_int_distribution<uint16_t> randByte;
 };

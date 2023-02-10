@@ -29,8 +29,7 @@ uint8_t fontset[FONTSET_SIZE] =
 	0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-
-Chip8::Chip8() : randGen((unsigned int)std::chrono::system_clock::now().time_since_epoch().count())
+Chip8::Chip8()
 {
 	// Initialize PC
 	pc = START_ADDRESS;
@@ -40,9 +39,6 @@ Chip8::Chip8() : randGen((unsigned int)std::chrono::system_clock::now().time_sin
 	{
 		memory[FONTSET_START_ADDRESS + i] = fontset[i];
 	}
-
-	// Initialize RNG
-	randByte = std::uniform_int_distribution<uint16_t>(0, 255U);
 }
 
 void Chip8::LoadROM(char const* filename)

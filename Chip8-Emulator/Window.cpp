@@ -39,6 +39,7 @@ Window::Window()
 
 Window::~Window()
 {
+	DestroyWindow(m_Hwnd);
 }
 
 bool Window::Create(int width, int height)

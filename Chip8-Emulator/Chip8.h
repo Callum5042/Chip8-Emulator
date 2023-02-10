@@ -24,10 +24,10 @@ public:
 	void Cycle();
 
 	// Keypad
-	uint8_t keypad[KEY_COUNT] = {};
+	std::array<uint32_t, KEY_COUNT> Keypad;
 
 	// VRAM
-	uint32_t video[VIDEO_WIDTH * VIDEO_HEIGHT] = {};
+	std::array<uint32_t, VIDEO_WIDTH* VIDEO_HEIGHT> VideoMemory;
 
 private:
 

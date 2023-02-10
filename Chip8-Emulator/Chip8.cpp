@@ -80,7 +80,7 @@ void Chip8::Cycle()
 		if (opcode == 0x00E0) // 00E0
 		{
 			// Clears the screen
-			std::memset(video, 0, sizeof(video));
+			std::memset(VideoMemory.data(), 0, VideoMemory.size());
 		}
 		else if (opcode == 0x00EE) // 00EE
 		{
@@ -306,7 +306,7 @@ void Chip8::Cycle()
 			for (unsigned col = 0; col < 8; ++col)
 			{
 				uint8_t sprite_pixel = spriteByte & (0x80 >> col);
-				uint32_t* screen_pixel = &video[(yPos + row) * VIDEO_WIDTH + (xPos + col)];
+				uint32_t* screen_pixel = &VideoMemory[(yPos + row) * VIDEO_WIDTH + (xPos + col)];
 
 				// Sprite pixel is on
 				if (sprite_pixel)
@@ -332,7 +332,7 @@ void Chip8::Cycle()
 			uint8_t register_vx = (opcode & 0x0F00) >> 8;
 			uint8_t key = m_Registers[register_vx];
 
-			if (keypad[key])
+			if (Keypad[key])
 			{
 				m_ProgramCounter += 2;
 			}
@@ -343,7 +343,7 @@ void Chip8::Cycle()
 			uint8_t register_vx = (opcode & 0x0F00) >> 8;
 			uint8_t key = m_Registers[register_vx];
 
-			if (!keypad[key])
+			if (!Keypad[key])
 			{
 				m_ProgramCounter += 2;
 			}
@@ -368,71 +368,17 @@ void Chip8::Cycle()
 			// A key press is awaited, and then stored in VX (blocking operation, all instruction halted until next key event)
 			uint8_t register_vx = (opcode & 0x0F00u) >> 8u;
 
-			if (keypad[0])
+			bool keypad_down = false;
+			for (int i = 0; i < 16; ++i)
 			{
-				m_Registers[register_vx] = 0;
+				if (Keypad[i])
+				{
+					m_Registers[register_vx] = i;
+					keypad_down = true;
+				}
 			}
-			else if (keypad[1])
-			{
-				m_Registers[register_vx] = 1;
-			}
-			else if (keypad[2])
-			{
-				m_Registers[register_vx] = 2;
-			}
-			else if (keypad[3])
-			{
-				m_Registers[register_vx] = 3;
-			}
-			else if (keypad[4])
-			{
-				m_Registers[register_vx] = 4;
-			}
-			else if (keypad[5])
-			{
-				m_Registers[register_vx] = 5;
-			}
-			else if (keypad[6])
-			{
-				m_Registers[register_vx] = 6;
-			}
-			else if (keypad[7])
-			{
-				m_Registers[register_vx] = 7;
-			}
-			else if (keypad[8])
-			{
-				m_Registers[register_vx] = 8;
-			}
-			else if (keypad[9])
-			{
-				m_Registers[register_vx] = 9;
-			}
-			else if (keypad[10])
-			{
-				m_Registers[register_vx] = 10;
-			}
-			else if (keypad[11])
-			{
-				m_Registers[register_vx] = 11;
-			}
-			else if (keypad[12])
-			{
-				m_Registers[register_vx] = 12;
-			}
-			else if (keypad[13])
-			{
-				m_Registers[register_vx] = 13;
-			}
-			else if (keypad[14])
-			{
-				m_Registers[register_vx] = 14;
-			}
-			else if (keypad[15])
-			{
-				m_Registers[register_vx] = 15;
-			}
-			else
+
+			if (!keypad_down)
 			{
 				m_ProgramCounter -= 2;
 			}

@@ -186,7 +186,7 @@ int main(int argc, char** argv)
 	Chip8 chip8;
 	//chip8.LoadROM("IBM Logo.ch8");
 	//chip8.LoadROM("chip8-test-suite.ch8");
-	chip8.LoadROM("breakout.rom");
+	chip8.LoadROM("breakout.ch8");
 	int video_pitch = sizeof(chip8.video[0]) * VIDEO_WIDTH;
 
 	// Message loop

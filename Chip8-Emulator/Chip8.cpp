@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <Windows.h>
+#include <iostream>
 
 namespace
 {
@@ -65,6 +66,8 @@ void Chip8::Cycle()
 {
 	// Fetch (opcode is 16 bits so we must read the current program counter and the next program counter)
 	uint16_t opcode = (m_Memory[m_ProgramCounter] << 8) | m_Memory[m_ProgramCounter + 1];
+
+	std::cout << "OPCODE: 0x" << std::hex << opcode << '\n';
 
 	// Increment the program counter before we execute anything
 	m_ProgramCounter += 2;

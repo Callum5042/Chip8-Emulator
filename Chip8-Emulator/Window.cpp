@@ -96,6 +96,11 @@ LRESULT Window::HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			return 0;
+
+		case WM_KEYDOWN:
+		case WM_KEYUP:
+			HandleKeyboardEvent(msg, wParam, lParam);
+			return 0;
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -108,4 +113,28 @@ void Window::GetSize(int* width, int* height)
 
 	*width = rect.right - rect.left;
 	*height = rect.bottom - rect.top;
+}
+
+void Window::HandleKeyboardEvent(UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	// Decode win32 message
+	WORD key_flags = HIWORD(lParam);
+	bool repeat = (key_flags & KF_REPEAT) == KF_REPEAT;
+	bool alt_down = (key_flags & KF_ALTDOWN) == KF_ALTDOWN;
+	WORD scan_code = LOBYTE(key_flags);
+	BOOL extended_key = (key_flags & KF_EXTENDED) == KF_EXTENDED;
+
+	if (extended_key)
+	{
+		scan_code = MAKEWORD(scan_code, 0xE0);
+	}
+
+	if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN)
+	{
+		KeyState[scan_code] = true;
+	}
+	else if (msg == WM_KEYUP || msg == WM_SYSKEYUP)
+	{
+		KeyState[scan_code] = false;
+	}
 }

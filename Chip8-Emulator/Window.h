@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <map>
 
 class Window
 {
@@ -23,6 +24,10 @@ public:
 	// Get window size
 	void GetSize(int* width, int* height);
 
+	// Keys
+	std::map<WORD, bool> KeyState;
+
 private:
 	HWND m_Hwnd = NULL;
+	void HandleKeyboardEvent(UINT msg, WPARAM wParam, LPARAM lParam);
 };

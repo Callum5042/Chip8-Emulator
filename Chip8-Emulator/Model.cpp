@@ -91,14 +91,14 @@ void DX::Model::UpdateTexture(void* video_buffer, int video_pitch)
 	deviceContext->Map(m_Texture.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
 
 	// Data
-	Uint8* src = (Uint8*)video_buffer;
-	Uint8* dst = (Uint8*)resource.pData;
+	uint8_t* src = static_cast<uint8_t*>(video_buffer);
+	uint8_t* dst = static_cast<uint8_t*>(resource.pData);
 
 	// Update the texture
 	const int HEIGHT = 32;
 	for (int row = 0; row < HEIGHT; ++row)
 	{
-		SDL_memcpy(dst, src, resource.RowPitch);
+		std::memcpy(dst, src, resource.RowPitch);
 		src += video_pitch;
 		dst += resource.RowPitch;
 	}

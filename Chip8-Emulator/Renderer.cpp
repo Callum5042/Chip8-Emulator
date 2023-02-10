@@ -1,21 +1,9 @@
 #include "Renderer.h"
-#include <SDL.h>
 #include <DirectXColors.h>
 #include <iostream>
 #include <vector>
 
-// Required for using SDL_SysWMinfo
-#include <SDL_syswm.h>
-
-HWND DX::GetHwnd(SDL_Window* window)
-{
-	SDL_SysWMinfo wmInfo = {};
-	SDL_GetVersion(&wmInfo.version);
-	SDL_GetWindowWMInfo(window, &wmInfo);
-	return wmInfo.info.win.window;
-}
-
-DX::Renderer::Renderer(SDL_Window* window) : m_SdlWindow(window)
+DX::Renderer::Renderer(Window* window) : m_Window(window)
 {
 }
 
@@ -24,7 +12,7 @@ void DX::Renderer::Create()
 	// Query window size
 	auto window_width = 0;
 	auto window_height = 0;
-	SDL_GetWindowSize(m_SdlWindow, &window_width, &window_height);
+	m_Window->GetSize(&window_width, &window_height);
 
 	// Setup Direct3D 11
 	CreateDeviceAndContext();
@@ -100,13 +88,13 @@ void DX::Renderer::CreateDeviceAndContext()
 	// Check if Direct3D 11.1 is supported, if not fall back to Direct3D 11
 	if (featureLevel != D3D_FEATURE_LEVEL_11_1)
 	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "D3D_FEATURE_LEVEL_11_1 is not supported! Falling back to D3D_FEATURE_LEVEL_11_0", nullptr);
+		MessageBox(NULL, L"D3D_FEATURE_LEVEL_11_1 is not supported! Falling back to D3D_FEATURE_LEVEL_11_0", L"Error", MB_OK);
 	}
 
 	// Check if Direct3D 11 is supported
 	if (featureLevel != D3D_FEATURE_LEVEL_11_1)
 	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "D3D_FEATURE_LEVEL_11_0 is not supported", nullptr);
+		MessageBox(NULL, L"D3D_FEATURE_LEVEL_11_0 is not supported", L"Error", MB_OK);
 		throw std::exception();
 	}
 }
@@ -114,7 +102,7 @@ void DX::Renderer::CreateDeviceAndContext()
 void DX::Renderer::CreateSwapChain(int width, int height)
 {
 	// Get the Win32 window from SDL_Window
-	auto hwnd = DX::GetHwnd(m_SdlWindow);
+	auto hwnd = m_Window->GetHwnd();
 
 	// Query the device until we get the DXGIFactory
 	ComPtr<IDXGIDevice> dxgiDevice = nullptr;

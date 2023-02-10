@@ -9,7 +9,7 @@ namespace
 	const unsigned int FONTSET_START_ADDRESS = 0x50;
 	const unsigned int START_ADDRESS = 0x200;
 
-	uint8_t fontset[FONTSET_SIZE] =
+	const uint8_t fontset[FONTSET_SIZE] =
 	{
 		0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
 		0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -36,7 +36,7 @@ Chip8::Chip8()
 	m_ProgramCounter = START_ADDRESS;
 
 	// Load fonts into m_Memory
-	for (unsigned int i = 0; i < FONTSET_SIZE; ++i)
+	for (unsigned i = 0; i < FONTSET_SIZE; ++i)
 	{
 		m_Memory[FONTSET_START_ADDRESS + i] = fontset[i];
 	}
@@ -44,23 +44,9 @@ Chip8::Chip8()
 
 void Chip8::LoadROM(char const* filename)
 {
-	std::ifstream file(filename, std::ios::binary | std::ios::ate);
-
-	if (file.is_open())
-	{
-		std::streampos size = file.tellg();
-		char* buffer = new char[size];
-		file.seekg(0, std::ios::beg);
-		file.read(buffer, size);
-		file.close();
-
-		for (long i = 0; i < size; ++i)
-		{
-			m_Memory[START_ADDRESS + i] = buffer[i];
-		}
-
-		delete[] buffer;
-	}
+	std::ifstream file(filename, std::fstream::in | std::fstream::binary);
+	std::vector<char> data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	std::memcpy(m_Memory.data() + START_ADDRESS, data.data(), data.size());
 }
 
 void Chip8::Cycle()

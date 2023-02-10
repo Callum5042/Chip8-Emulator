@@ -27,7 +27,7 @@ public:
 	std::array<uint32_t, KEY_COUNT> Keypad;
 
 	// VRAM
-	std::array<uint32_t, VIDEO_WIDTH* VIDEO_HEIGHT> VideoMemory;
+	std::array<uint32_t, VIDEO_WIDTH* VIDEO_HEIGHT> VideoBuffer;
 
 private:
 

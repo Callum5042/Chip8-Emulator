@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	//chip8.LoadROM("IBM Logo.ch8");
 	//chip8.LoadROM("chip8-test-suite.ch8");
 	chip8.LoadROM("breakout.ch8");
-	int video_pitch = sizeof(chip8.VideoMemory[0]) * VIDEO_WIDTH; 
+	int video_pitch = sizeof(chip8.VideoBuffer[0]) * VIDEO_WIDTH;
 
 	// Message loop
 	bool quit = false;
@@ -68,7 +68,7 @@ int main(int argc, char** argv)
 
 		// Update screen
 		renderer.Clear();
-		model.UpdateTexture(chip8.VideoMemory.data(), video_pitch);
+		model.UpdateTexture(chip8.VideoBuffer.data(), video_pitch);
 		model.Render();
 		renderer.Present();
 	}

@@ -80,7 +80,7 @@ void Chip8::Cycle()
 		if (opcode == 0x00E0) // 00E0
 		{
 			// Clears the screen
-			std::memset(VideoMemory.data(), 0, VideoMemory.size());
+			std::memset(VideoBuffer.data(), 0, VideoBuffer.size());
 		}
 		else if (opcode == 0x00EE) // 00EE
 		{
@@ -306,7 +306,7 @@ void Chip8::Cycle()
 			for (unsigned col = 0; col < 8; ++col)
 			{
 				uint8_t sprite_pixel = spriteByte & (0x80 >> col);
-				uint32_t* screen_pixel = &VideoMemory[(yPos + row) * VIDEO_WIDTH + (xPos + col)];
+				uint32_t* screen_pixel = &VideoBuffer[(yPos + row) * VIDEO_WIDTH + (xPos + col)];
 
 				// Sprite pixel is on
 				if (sprite_pixel)

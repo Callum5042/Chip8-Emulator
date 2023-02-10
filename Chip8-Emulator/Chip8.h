@@ -44,7 +44,9 @@ private:
 	uint16_t m_ProgramCounter = 0;
 
 	// Stacks
-	std::stack<uint16_t> m_Stack;
+	//std::stack<uint16_t> m_Stack;
+	uint16_t stack[STACK_LEVELS] = {};
+	uint8_t sp = 0;
 
 	// Delay timer
 	uint8_t m_DelayTimer = 0;

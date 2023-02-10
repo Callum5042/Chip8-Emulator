@@ -2,6 +2,9 @@
 #include <fstream>
 #include <chrono>
 #include <random>
+#include <string>
+#include <sstream>
+#include <Windows.h>
 
 namespace
 {
@@ -70,8 +73,8 @@ void Chip8::Cycle()
 		else if (opcode == 0x00EE) // 00EE
 		{
 			// Returns from a subroutine (pop the stack)
-			m_ProgramCounter = m_Stack.top();
-			m_Stack.pop();
+			--sp;
+			m_ProgramCounter = stack[sp];
 		}
 	}
 	else if (decode == 0x1) // 1NNN
@@ -82,8 +85,14 @@ void Chip8::Cycle()
 	else if (decode == 0x2) // 2NNN
 	{
 		// Calls subroutine at NNN (push the stack)
-		m_Stack.push(m_ProgramCounter);
-		m_ProgramCounter = opcode & 0x0FFF;
+		/*m_Stack.push(m_ProgramCounter);
+		m_ProgramCounter = opcode & 0x0FFF;*/
+
+		uint16_t address = opcode & 0x0FFFu;
+
+		stack[sp] = m_ProgramCounter;
+		++sp;
+		m_ProgramCounter = address;
 	}
 	else if (decode == 0x3) // 3XNN
 	{
@@ -176,13 +185,33 @@ void Chip8::Cycle()
 			uint8_t vx_register = (opcode & 0x0F00) >> 8;
 			uint8_t vy_register = (opcode & 0x00F0) >> 4;
 
-			m_Registers[vx_register] += m_Registers[vy_register];
+			uint16_t sum = m_Registers[vx_register] + m_Registers[vy_register];
+
+			if (sum > 255U)
+			{
+				m_Registers[0xF] = 1;
+			}
+			else
+			{
+				m_Registers[0xF] = 0;
+			}
+
+			m_Registers[vx_register] = sum;
 		}
 		else if (val == 0x5) // 8XY5
 		{
 			// VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there is not
 			uint8_t vx_register = (opcode & 0x0F00) >> 8;
 			uint8_t vy_register = (opcode & 0x00F0) >> 4;
+
+			if (m_Registers[vx_register] > m_Registers[vy_register])
+			{
+				m_Registers[0xF] = 1;
+			}
+			else
+			{
+				m_Registers[0xF] = 0;
+			}
 
 			m_Registers[vx_register] -= m_Registers[vy_register];
 		}
@@ -307,6 +336,14 @@ void Chip8::Cycle()
 			{
 				m_ProgramCounter += 2;
 			}
+		}
+		else
+		{
+			std::wstringstream ss;
+			ss << "Invalid instructions: 0x" << std::hex << decode;
+
+			MessageBox(NULL, ss.str().c_str(), L"Error", MB_OK);
+			throw std::exception("Invalid instruction");
 		}
 	}
 	else if (decode == 0xF)

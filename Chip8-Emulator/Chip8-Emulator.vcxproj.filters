@@ -52,6 +52,7 @@
     <CopyFileToFolders Include="test_opcode.ch8" />
     <CopyFileToFolders Include="IBM Logo.ch8" />
     <CopyFileToFolders Include="chip8-test-suite.ch8" />
+    <CopyFileToFolders Include="breakout.c8" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl">

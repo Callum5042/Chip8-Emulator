@@ -1,8 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <random>
-
 
 const unsigned int KEY_COUNT = 16;
 const unsigned int MEMORY_SIZE = 4096;

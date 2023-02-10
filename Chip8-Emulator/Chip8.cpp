@@ -314,7 +314,7 @@ void Chip8::Cycle()
 	}
 	else if (decode == 0xE)
 	{
-		uint32_t val = (opcode & 0x0F00) >> 8;
+		uint32_t val = (opcode & 0x00FF);
 		if (val == 0x9E) // EX9E
 		{
 			// Skips the next instruction if the key stored in VX is pressed (usually the next instruction is a jump to skip a code block)

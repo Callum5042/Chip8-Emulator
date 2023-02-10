@@ -301,6 +301,11 @@ void Chip8::Cycle()
 		// Sets I to the address NNN
 		index = opcode & 0x0FFF;
 	}
+	else if (decode == 0xB) // BNNN
+	{
+		// Jumps to the address NNN plus V0
+		pc = (opcode & 0x0FFF) + registers[0];
+	}
 	else if (decode == 0xC) /// CXNN
 	{
 		// Sets VX to the result of a bitwise and operation on a random number (Typically: 0 to 255) and NN
@@ -349,6 +354,180 @@ void Chip8::Cycle()
 					// Effectively XOR with the sprite pixel
 					*screen_pixel ^= 0xFFFFFFFF;
 				}
+			}
+		}
+	}
+	else if (decode == 0xE)
+	{
+		uint32_t val = (opcode & 0x0F00) >> 8;
+		if (val == 0x9E) // EX9E
+		{
+			// Skips the next instruction if the key stored in VX is pressed (usually the next instruction is a jump to skip a code block)
+			uint8_t register_vx = (opcode & 0x0F00) >> 8;
+			uint8_t key = registers[register_vx];
+
+			if (keypad[key])
+			{
+				pc += 2;
+			}
+		}
+		else if (val == 0xA1) // EX9E
+		{
+			// Skips the next instruction if the key stored in VX is not pressed (usually the next instruction is a jump to skip a code block)
+			uint8_t register_vx = (opcode & 0x0F00) >> 8;
+			uint8_t key = registers[register_vx];
+
+			if (!keypad[key])
+			{
+				pc += 2;
+			}
+		}
+	}
+	else if (decode == 0xF)
+	{
+		uint32_t val = (opcode & 0x00FF);
+
+		if (val == 0x7) // FX07
+		{
+			// Sets VX to the value of the delay timer
+			uint8_t register_vx = (opcode & 0x0F00) >> 8;
+			registers[register_vx] = delayTimer;
+		}
+		else if (val == 0x0A) // FX0A
+		{
+			// A key press is awaited, and then stored in VX (blocking operation, all instruction halted until next key event)
+			uint8_t register_vx = (opcode & 0x0F00u) >> 8u;
+
+			if (keypad[0])
+			{
+				registers[register_vx] = 0;
+			}
+			else if (keypad[1])
+			{
+				registers[register_vx] = 1;
+			}
+			else if (keypad[2])
+			{
+				registers[register_vx] = 2;
+			}
+			else if (keypad[3])
+			{
+				registers[register_vx] = 3;
+			}
+			else if (keypad[4])
+			{
+				registers[register_vx] = 4;
+			}
+			else if (keypad[5])
+			{
+				registers[register_vx] = 5;
+			}
+			else if (keypad[6])
+			{
+				registers[register_vx] = 6;
+			}
+			else if (keypad[7])
+			{
+				registers[register_vx] = 7;
+			}
+			else if (keypad[8])
+			{
+				registers[register_vx] = 8;
+			}
+			else if (keypad[9])
+			{
+				registers[register_vx] = 9;
+			}
+			else if (keypad[10])
+			{
+				registers[register_vx] = 10;
+			}
+			else if (keypad[11])
+			{
+				registers[register_vx] = 11;
+			}
+			else if (keypad[12])
+			{
+				registers[register_vx] = 12;
+			}
+			else if (keypad[13])
+			{
+				registers[register_vx] = 13;
+			}
+			else if (keypad[14])
+			{
+				registers[register_vx] = 14;
+			}
+			else if (keypad[15])
+			{
+				registers[register_vx] = 15;
+			}
+			else
+			{
+				pc -= 2;
+			}
+		}
+		else if (val == 0x15) // FX15
+		{
+			// Sets the delay timer to VX
+			uint8_t register_vx = (opcode & 0x0F00) >> 8;
+			delayTimer = registers[register_vx];
+		}
+		else if (val == 0x18) // FX18
+		{
+			// Sets the sound timer to VX
+			uint8_t register_vx = (opcode & 0x0F00) >> 8;
+			soundTimer = registers[register_vx];
+		}
+		else if (val == 0x1E) // FX1E
+		{
+			// Adds VX to I. VF is not affected
+			uint8_t register_vx = (opcode & 0x0F00) >> 8;
+			index += registers[register_vx];
+		}
+		else if (val == 0x29) // FX29
+		{
+			// Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font
+			uint8_t register_vx = (opcode & 0x0F00u) >> 8u;
+			uint8_t digit = registers[register_vx];
+
+			index = FONTSET_START_ADDRESS + (5 * digit);
+		}
+		else if (val == 0x33) // FX33
+		{
+			// Stores the binary-coded decimal representation of VX, with the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2
+			uint8_t register_vx = (opcode & 0x0F00) >> 8;
+			uint8_t value = registers[register_vx];
+
+			// Ones-place
+			memory[index + 2] = value % 10;
+			value /= 10;
+
+			// Tens-place
+			memory[index + 1] = value % 10;
+			value /= 10;
+
+			// Hundreds-place
+			memory[index] = value % 10;
+		}
+		else if (val == 0x55) // FX55
+		{
+			// Stores from V0 to VX (including VX) in memory, starting at address I. The offset from I is increased by 1 for each value written, but I itself is left unmodified
+			uint8_t Vx = (opcode & 0x0F00) >> 8;
+
+			for (uint8_t i = 0; i <= Vx; ++i)
+			{
+				memory[index + i] = registers[i];
+			}
+		}
+		else if (val == 0x65) // FX65
+		{
+			// Fills from V0 to VX (including VX) with values from memory, starting at address I. The offset from I is increased by 1 for each value read, but I itself is left unmodified
+			uint8_t Vx = (opcode & 0x0F00) >> 8;
+
+			for (uint8_t i = 0; i <= Vx; ++i)
+			{
+				registers[i] = memory[index + i];
 			}
 		}
 	}

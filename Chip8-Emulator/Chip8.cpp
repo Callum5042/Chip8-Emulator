@@ -85,10 +85,6 @@ void Chip8::Cycle()
 			m_ProgramCounter = m_Stack.top();
 			m_Stack.pop();
 		}
-		else
-		{
-			InvalidInstruction(opcode);
-		}
 	}
 	else if (decode == 0x1) // 1NNN
 	{

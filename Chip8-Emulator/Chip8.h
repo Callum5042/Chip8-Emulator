@@ -1,6 +1,8 @@
 #pragma once
 
+// https://en.wikipedia.org/wiki/CHIP-8
 #include <cstdint>
+#include <array>
 
 const unsigned int KEY_COUNT = 16;
 const unsigned int MEMORY_SIZE = 4096;
@@ -9,26 +11,46 @@ const unsigned int STACK_LEVELS = 16;
 const unsigned int VIDEO_HEIGHT = 32;
 const unsigned int VIDEO_WIDTH = 64;
 
-// https://en.wikipedia.org/wiki/CHIP-8
-
 class Chip8
 {
 public:
 	Chip8();
+
+	// Load the ROM into memory
 	void LoadROM(char const* filename);
+
+	// Cycle through the CPU
 	void Cycle();
 
-	uint8_t keypad[KEY_COUNT]{};
-	uint32_t video[VIDEO_WIDTH * VIDEO_HEIGHT]{};
+	// Keypad
+	uint8_t keypad[KEY_COUNT] = {};
+
+	// VRAM
+	uint32_t video[VIDEO_WIDTH * VIDEO_HEIGHT] = {};
 
 private:
-	uint8_t memory[MEMORY_SIZE]{};
-	uint8_t registers[REGISTER_COUNT]{};
-	uint16_t index{};
-	uint16_t pc{};
-	uint8_t delayTimer{};
-	uint8_t soundTimer{};
-	uint16_t stack[STACK_LEVELS]{};
-	uint8_t sp{};
-	uint16_t opcode{};
+
+	// RAM
+	std::array<uint8_t, MEMORY_SIZE> m_Memory;
+
+	// Registers
+	std::array<uint8_t, REGISTER_COUNT> m_Registers;
+
+	// Index register
+	uint16_t m_IndexRegister = 0;
+
+	// Program counter
+	uint16_t m_ProgramCounter = 0;
+
+	// Stack pointer
+	uint8_t m_StackPointer = 0;
+
+	// Stacks
+	uint16_t stack[STACK_LEVELS];
+
+	// Delay timer
+	uint8_t m_DelayTimer = 0;
+
+	// Sound timer
+	uint8_t m_SoundTimer = 0;
 };

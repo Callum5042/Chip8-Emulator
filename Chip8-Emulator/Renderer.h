@@ -3,9 +3,7 @@
 #include <exception>
 #include <SDL_video.h>
 #include <d3d11_1.h>
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include "Window.h"
 
 // This include is requires for using DirectX smart pointers (ComPtr)
 #include <wrl\client.h>
@@ -24,14 +22,11 @@ namespace DX
 #endif
 	}
 
-	// DirectX requires the Win32 window (HWND)
-	HWND GetHwnd(SDL_Window* window);
-
 	// DirectX rendering class
 	class Renderer
 	{
 	public:
-		Renderer(SDL_Window* window);
+		Renderer(Window* window);
 		virtual ~Renderer() = default;
 
 		// Setup functions
@@ -53,7 +48,7 @@ namespace DX
 		ID3D11DeviceContext* GetDeviceContext() const { return m_d3dDeviceContext.Get(); }
 
 	private:
-		SDL_Window* m_SdlWindow = nullptr;
+		Window* m_Window = nullptr;
 
 		// Device and device context
 		ComPtr<ID3D11Device> m_d3dDevice = nullptr;

@@ -3,6 +3,7 @@
 // https://en.wikipedia.org/wiki/CHIP-8
 #include <cstdint>
 #include <array>
+#include <stack>
 
 const unsigned int KEY_COUNT = 16;
 const unsigned int MEMORY_SIZE = 4096;
@@ -42,11 +43,8 @@ private:
 	// Program counter
 	uint16_t m_ProgramCounter = 0;
 
-	// Stack pointer
-	uint8_t m_StackPointer = 0;
-
 	// Stacks
-	uint16_t stack[STACK_LEVELS];
+	std::stack<uint16_t> m_Stack;
 
 	// Delay timer
 	uint8_t m_DelayTimer = 0;

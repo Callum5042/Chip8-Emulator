@@ -70,8 +70,8 @@ void Chip8::Cycle()
 		else if (opcode == 0x00EE) // 00EE
 		{
 			// Returns from a subroutine (pop the stack)
-			--m_StackPointer;
-			m_ProgramCounter = stack[m_StackPointer];
+			m_ProgramCounter = m_Stack.top();
+			m_Stack.pop();
 		}
 	}
 	else if (decode == 0x1) // 1NNN
@@ -82,8 +82,7 @@ void Chip8::Cycle()
 	else if (decode == 0x2) // 2NNN
 	{
 		// Calls subroutine at NNN (push the stack)
-		stack[m_StackPointer] = m_ProgramCounter;
-		++m_StackPointer;
+		m_Stack.push(m_ProgramCounter);
 		m_ProgramCounter = opcode & 0x0FFF;
 	}
 	else if (decode == 0x3) // 3XNN

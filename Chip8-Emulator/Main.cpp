@@ -24,8 +24,8 @@ int main(int argc, char** argv)
 
 	// Create shader
 	DX::Shader shader(&renderer);
-	shader.LoadPixelShader("D:\\Sources\\Chip8-Emulator\\bin\\x64-Debug\\PixelShader.cso");
-	shader.LoadVertexShader("D:\\Sources\\Chip8-Emulator\\bin\\x64-Debug\\VertexShader.cso");
+	shader.LoadPixelShader(L"PixelShader.hlsl");
+	shader.LoadVertexShader(L"VertexShader.hlsl");
 	shader.Use();
 
 	// Model

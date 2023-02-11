@@ -1,6 +1,8 @@
 #include "Shader.h"
 #include <fstream>
 #include <vector>
+#include <D3DCompiler.h>
+#pragma comment(lib, "d3dcompiler.lib")
 
 DX::Shader::Shader(Renderer* renderer) : m_DxRenderer(renderer)
 {
@@ -18,16 +20,18 @@ DX::Shader::Shader(Renderer* renderer) : m_DxRenderer(renderer)
 	DX::Check(m_DxRenderer->GetDevice()->CreateSamplerState(&samplerDesc, &m_AnisotropicSampler));
 }
 
-void DX::Shader::LoadVertexShader(std::string&& vertex_shader_path)
+void DX::Shader::LoadVertexShader(std::wstring&& vertex_shader_path)
 {
 	auto d3dDevice = m_DxRenderer->GetDevice();
 
-	// Load the binary file into memory
-	std::ifstream file(vertex_shader_path, std::fstream::in | std::fstream::binary);
-	std::vector<char> data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+
+	ComPtr<ID3DBlob> shader_blob = nullptr;
+	ID3DBlob* error = nullptr;
+	DX::Check(D3DCompileFromFile(vertex_shader_path.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", flags, 0, shader_blob.GetAddressOf(), &error));
 
 	// Create the vertex shader
-	DX::Check(d3dDevice->CreateVertexShader(data.data(), data.size(), nullptr, m_d3dVertexShader.ReleaseAndGetAddressOf()));
+	DX::Check(d3dDevice->CreateVertexShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), nullptr, m_d3dVertexShader.ReleaseAndGetAddressOf()));
 
 	// Describe the memory layout
 	D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -37,19 +41,21 @@ void DX::Shader::LoadVertexShader(std::string&& vertex_shader_path)
 	};
 
 	UINT numElements = ARRAYSIZE(layout);
-	DX::Check(d3dDevice->CreateInputLayout(layout, numElements, data.data(), data.size(), m_d3dVertexLayout.ReleaseAndGetAddressOf()));
+	DX::Check(d3dDevice->CreateInputLayout(layout, numElements, shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), m_d3dVertexLayout.ReleaseAndGetAddressOf()));
 }
 
-void DX::Shader::LoadPixelShader(std::string&& pixel_shader_path)
+void DX::Shader::LoadPixelShader(std::wstring&& pixel_shader_path)
 {
 	auto d3dDevice = m_DxRenderer->GetDevice();
 
-	// Load the binary file into memory
-	std::ifstream file(pixel_shader_path, std::fstream::in | std::fstream::binary);
-	std::vector<char> data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+
+	ComPtr<ID3DBlob> shader_blob = nullptr;
+	ID3DBlob* error = nullptr;
+	DX::Check(D3DCompileFromFile(pixel_shader_path.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", flags, 0, shader_blob.GetAddressOf(), &error));
 
 	// Create pixel shader
-	DX::Check(d3dDevice->CreatePixelShader(data.data(), data.size(), nullptr, m_d3dPixelShader.ReleaseAndGetAddressOf()));
+	DX::Check(d3dDevice->CreatePixelShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), nullptr, m_d3dPixelShader.ReleaseAndGetAddressOf()));
 }
 
 void DX::Shader::Use()

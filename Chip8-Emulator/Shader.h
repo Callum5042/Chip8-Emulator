@@ -12,10 +12,10 @@ namespace DX
 		virtual ~Shader() = default;
 
 		// Create vertex shader
-		void LoadVertexShader(std::string&& vertex_shader_path);
+		void LoadVertexShader(std::wstring&& vertex_shader_path);
 
 		// Create pixel shader
-		void LoadPixelShader(std::string&& pixel_shader_path);
+		void LoadPixelShader(std::wstring&& pixel_shader_path);
 
 		// Bind the shader to the pipeline
 		void Use();

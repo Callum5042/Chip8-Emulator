@@ -11,6 +11,6 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Load" Click="MenuItem_Load_Click" />
         </Menu>
-        <Image x:Name="image" />
+        <Image x:Name="image" RenderOptions.BitmapScalingMode="NearestNeighbor" />
     </DockPanel>
 </Window>

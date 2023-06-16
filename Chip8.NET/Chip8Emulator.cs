@@ -184,11 +184,20 @@ namespace Chip8.NET
             }
             else if (op == 0x33)
             {
-                // throw new NotImplementedException();
+                // Store binary-coded decimal representation of x in memory locations I, I + 1, and I+2
+                var value = Registers[register];
+
+                Memory[IndexRegister + 2] = (byte)(value % 10);
+                value /= 10;
+
+                Memory[IndexRegister + 1] = (byte)(value % 10);
+                value /= 10;
+
+                Memory[IndexRegister] = (byte)(value % 10);
             }
             else if (op == 0x55)
             {
-                // Stores from V0 to VX (including VX) in memory, starting at address I
+                // Stores from register 0 to register X (including register X) in memory, starting at address I
                 for (int i = 0; i <= (int)register; ++i)
                 {
                     Memory[IndexRegister + i] = Registers[(Register)i];
@@ -196,7 +205,7 @@ namespace Chip8.NET
             }
             else if (op == 0x65)
             {
-                // Fills from V0 to VX (including VX) with values from memory, starting at address I
+                // Fills from register 0 to register X (including register X) with values from memory, starting at address I
                 for (int i = 0; i <= (int)register; ++i)
                 {
                     Registers[(Register)i] = Memory[IndexRegister + i];

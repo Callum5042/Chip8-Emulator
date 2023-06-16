@@ -1,20 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Media;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Chip8.NET
 {
@@ -34,9 +24,14 @@ namespace Chip8.NET
 
             // Emulator = new Chip8Emulator("ROMS/1-chip8-logo.ch8");
             // Emulator = new Chip8Emulator("ROMS/5-quirks.ch8");
-            Emulator = new Chip8Emulator("ROMS/6-keypad.ch8");
+            // Emulator = new Chip8Emulator("ROMS/6-keypad.ch8");
 
-            CompositionTarget.Rendering += MainLoop;
+            // CompositionTarget.Rendering += MainLoop;
+
+            Dispatcher.BeginInvoke(() =>
+            {
+                CompositionTarget.Rendering += MainLoop;
+            });
         }
 
         private void MainLoop(object? sender, EventArgs e)
@@ -46,16 +41,17 @@ namespace Chip8.NET
                 // Pause when delay timer is active
                 if (Emulator.DelayTimer > 0)
                 {
-                    Emulator.DelayTimer -= 1;
+                    Task.Delay(Emulator.DelayTimer * 10).Wait();
+                    Emulator.DelayTimer = 0;
                     // return;
                 }
 
-                // Play sound
-                if (Emulator.SoundTimer > 0)
-                {
-                    Emulator.SoundTimer -= 1;
-                    SystemSounds.Beep.Play();
-                }
+                //// Play sound
+                //if (Emulator.SoundTimer > 0)
+                //{
+                //    Emulator.SoundTimer -= 1;
+                //    SystemSounds.Beep.Play();
+                //}
 
                 // Set keypad states
                 Emulator.Keypad[0x0] = Keyboard.IsKeyDown(Key.X);

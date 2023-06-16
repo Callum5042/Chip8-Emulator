@@ -28,8 +28,30 @@ namespace Chip8.NET
     public class Chip8Emulator
     {
         private const int StartAddress = 0x200;
+        private const int FontsetStartAddress = 0x50;
+        private const int FontsetSize = 80;
         public const int DisplayWidth = 64;
         public const int DisplayHeight = 32;
+
+        public byte[] Fontset { get; set;} = new byte[FontsetSize]
+        {
+            0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+		    0x20, 0x60, 0x20, 0x20, 0x70, // 1
+		    0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+		    0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+		    0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+		    0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+		    0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+		    0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+		    0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+		    0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+		    0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+		    0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+		    0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+		    0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+		    0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+		    0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+	    };
 
         public Chip8Emulator(string filepath)
         {
@@ -38,6 +60,12 @@ namespace Chip8.NET
             foreach (var val in Enum.GetValues<Register>())
             {
                 Registers[val] = 0;
+            }
+
+            // Load fonts into memory
+            for (int i = 0; i < FontsetSize; ++i)
+            {
+                Memory[FontsetStartAddress + i] = Fontset[i];
             }
         }
 
@@ -194,7 +222,9 @@ namespace Chip8.NET
             }
             else if (op == 0x29)
             {
-                // throw new NotImplementedException();
+                // Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font
+                var digit = Registers[register];
+                IndexRegister = (ushort)(FontsetStartAddress + (5 * digit));
             }
             else if (op == 0x33)
             {
@@ -283,6 +313,10 @@ namespace Chip8.NET
                         if (screenPixel == 0xFF)
                         {
                             Registers[Register.VF] = 1;
+                        }
+                        else
+                        {
+                            Registers[Register.VF] = 0;
                         }
 
                         Display[(y + row) * DisplayWidth + (x + col)] ^= 0xFF;

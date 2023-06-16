@@ -30,7 +30,7 @@ namespace Chip8.NET
             InitializeComponent();
 
             // Emulator = new Chip8Emulator("ROMS/IBM Logo.ch8");
-            // Emulator = new Chip8Emulator("ROMS/breakout.ch8");
+            Emulator = new Chip8Emulator("ROMS/breakout.ch8");
 
             // Emulator = new Chip8Emulator("ROMS/1-chip8-logo.ch8");
             Emulator = new Chip8Emulator("ROMS/4-flags.ch8");

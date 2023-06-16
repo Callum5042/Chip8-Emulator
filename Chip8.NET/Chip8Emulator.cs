@@ -362,23 +362,63 @@ namespace Chip8.NET
             }
             else if (op == 0x5)
             {
-                var sum = Registers[registerX] - Registers[registerY];
-                Registers[registerX] = (byte)sum;
+                // If we have overflowed the byte (255) then we set the register VF to 1
 
-                // If we have underflowed the byte (255) then we set the register VF to 1
-                Registers[Register.VF] = (byte)(sum < byte.MinValue ? 1 : 0);
+                //var x = Registers[registerX];
+                //var y = Registers[registerY];
+
+                //if (Registers[registerX] > Registers[registerY])
+                //{
+                //    Registers[Register.VF] = 1;
+                //}
+                //else
+                //{
+                //    Registers[Register.VF] = 0;
+                //}
+
+                //Registers[registerX] = (byte)(x - y);
+
+                if (Registers[registerX] > Registers[registerY])
+                {
+                    Registers[registerX] = (byte)(Registers[registerX] - Registers[registerY]);
+                    Registers[Register.VF] = 1;
+                }
+                else
+                {
+                    Registers[registerX] = (byte)(256 + Registers[registerX] - Registers[registerY]);
+                    Registers[Register.VF] = 0;
+                }
             }
             else if (op == 0x6)
             {
+                var shiftedOut = Registers[registerX] & 0x1;
+
+                Registers[registerX] = Registers[registerY];
                 Registers[registerX] >>= 1;
+
+                Registers[Register.VF] = (byte)shiftedOut;
             }
             else if (op == 0x7)
             {
-                Registers[registerX] = (byte)(Registers[registerY] - Registers[registerX]);
+                if (Registers[registerY] > Registers[registerX])
+                {
+                    Registers[registerX] = (byte)(Registers[registerY] - Registers[registerX]);
+                    Registers[Register.VF] = 1;
+                }
+                else
+                {
+                    Registers[registerX] = (byte)(256 + Registers[registerY] - Registers[registerX]);
+                    Registers[Register.VF] = 0;
+                }
             }
             else if (op == 0xE)
             {
+                var shiftedOut = (Registers[registerY] & 0x80) >> 7;
+
+                Registers[registerX] = Registers[registerY];
                 Registers[registerX] <<= 1;
+
+                Registers[Register.VF] = (byte)shiftedOut;
             }
             else
             {
@@ -464,11 +504,8 @@ namespace Chip8.NET
         private void ReturnFromFunction()
         {
             // Pop the stack so set the program counter to point to the memory address set in the stack
-            if (StackPointer > 0)
-            {
-                StackPointer--;
-                ProgramCounter = Stack[StackPointer];
-            }
+            StackPointer--;
+            ProgramCounter = Stack[StackPointer];
         }
 
         private void ClearScreen()

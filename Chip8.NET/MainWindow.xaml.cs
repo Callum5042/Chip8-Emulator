@@ -43,15 +43,14 @@ namespace Chip8.NET
                 {
                     Task.Delay(Emulator.DelayTimer * 10).Wait();
                     Emulator.DelayTimer = 0;
-                    // return;
                 }
 
-                //// Play sound
-                //if (Emulator.SoundTimer > 0)
-                //{
-                //    Emulator.SoundTimer -= 1;
-                //    SystemSounds.Beep.Play();
-                //}
+                // Play sound
+                if (Emulator.SoundTimer > 0)
+                {
+                    Console.Beep(5000, Emulator.SoundTimer * 10);
+                    Emulator.SoundTimer = 0;
+                }
 
                 // Set keypad states
                 Emulator.Keypad[0x0] = Keyboard.IsKeyDown(Key.X);

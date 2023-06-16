@@ -285,7 +285,7 @@ namespace Chip8.NET
                             Registers[Register.VF] = 1;
                         }
 
-                        Display[(y + row) * DisplayWidth + (x + col)] = 0xFF;
+                        Display[(y + row) * DisplayWidth + (x + col)] ^= 0xFF;
                     }
                 }
             }

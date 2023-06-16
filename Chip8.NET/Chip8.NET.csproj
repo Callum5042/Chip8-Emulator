@@ -23,6 +23,9 @@
     <None Update="ROMS\5-quirks.ch8">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="ROMS\6-keypad.ch8">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="ROMS\breakout.ch8">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

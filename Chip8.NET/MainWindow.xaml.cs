@@ -33,7 +33,8 @@ namespace Chip8.NET
             Emulator = new Chip8Emulator("ROMS/breakout.ch8");
 
             // Emulator = new Chip8Emulator("ROMS/1-chip8-logo.ch8");
-            Emulator = new Chip8Emulator("ROMS/5-quirks.ch8");
+            // Emulator = new Chip8Emulator("ROMS/5-quirks.ch8");
+            Emulator = new Chip8Emulator("ROMS/6-keypad.ch8");
 
             CompositionTarget.Rendering += MainLoop;
         }
@@ -83,7 +84,7 @@ namespace Chip8.NET
 
         private void MenuItem_Load_Click(object sender, RoutedEventArgs e)
         {
-            Array.Clear(Emulator.Display);
+
         }
     }
 }

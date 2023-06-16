@@ -1,8 +1,6 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 namespace Chip8.NET
@@ -165,7 +163,7 @@ namespace Chip8.NET
 
         private void MixtureOfThings(short opcode)
         {
-            var register = (Register)(opcode & 0x0F00);
+            var register = (Register)((opcode & 0x0F00) >> 8);
             var op = opcode & 0x00FF;
 
             if (op == 0x15)
@@ -190,11 +188,19 @@ namespace Chip8.NET
             }
             else if (op == 0x55)
             {
-                // throw new NotImplementedException();
+                // Stores from V0 to VX (including VX) in memory, starting at address I
+                for (int i = 0; i <= (int)register; ++i)
+                {
+                    Memory[IndexRegister + i] = Registers[(Register)i];
+                }
             }
             else if (op == 0x65)
             {
-                // throw new NotImplementedException();
+                // Fills from V0 to VX (including VX) with values from memory, starting at address I
+                for (int i = 0; i <= (int)register; ++i)
+                {
+                    Registers[(Register)i] = Memory[IndexRegister + i];
+                }
             }
         }
 
@@ -334,7 +340,7 @@ namespace Chip8.NET
             }
             else if (op == 0x6)
             {
-                Registers[registerX] >>= Registers[registerY];
+                Registers[registerX] >>= 1;
             }
             else if (op == 0x7)
             {
@@ -342,7 +348,7 @@ namespace Chip8.NET
             }
             else if (op == 0xE)
             {
-                Registers[registerX] <<= Registers[registerY];
+                Registers[registerX] <<= 1;
             }
         }
 

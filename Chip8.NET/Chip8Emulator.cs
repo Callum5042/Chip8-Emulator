@@ -115,6 +115,143 @@ namespace Chip8.NET
             {
                 SkipIfRegistersEquals(opcode);
             }
+            else if (decode == 0x6)
+            {
+                SetRegister(opcode);
+            }
+            else if (decode == 0x7)
+            {
+                AddAndAssign(opcode);
+            }
+            else if (decode == 0x8)
+            {
+                RegisterOperations(opcode);
+            }
+            else if (decode == 0x9)
+            {
+                SkipIfRegistersNotEquals(opcode);
+            }
+            else if (decode == 0xA)
+            {
+                SetIndexRegister(opcode);
+            }
+            else if (decode == 0xB)
+            {
+                JumpToAddressPlusRegister(opcode);
+            }
+            else if (decode == 0xC)
+            {
+                SetRegisterToRandom(opcode);
+            }
+        }
+
+        private void SetRegisterToRandom(short opcode)
+        {
+            // Set the register X to random value & nn (0xCxnn)
+            var registerX = (Register)((opcode & 0x0F00) >> 8);
+            var value = (short)(opcode & 0x00FF);
+
+            var random = new Random();
+            var rnd = random.Next(255) & value;
+            Registers[registerX] = (byte)rnd;
+        }
+
+        private void JumpToAddressPlusRegister(short opcode)
+        {
+            // Jump to memory address NNN (Bnnn)
+            var memoryAddress = (short)(opcode & 0x0FFF);
+            ProgramCounter = (short)(memoryAddress + Registers[Register.V0]);
+        }
+
+        private void SetIndexRegister(short opcode)
+        {
+            // Sets the I register to the value NNN (0xAnnn)
+            var memoryAddress = (short)(opcode & 0x0FFF);
+            IndexRegister = memoryAddress;
+        }
+
+        private void SkipIfRegistersNotEquals(short opcode)
+        {
+            // Gets the register X and register Y (9xy0)
+            var registerX = (Register)((opcode & 0x0F00) >> 8);
+            var registerY = (Register)((opcode & 0x00F0) >> 4);
+
+            if (Registers[registerX] != Registers[registerY])
+            {
+                // Skip next instruction. Opcode is 16 bytes so we increase by 2
+                ProgramCounter += 2;
+            }
+        }
+
+        private void RegisterOperations(short opcode)
+        {
+            // Get the x and y register (8xyz)
+            var registerX = (Register)((opcode & 0x0F00) >> 8);
+            var registerY = (Register)((opcode & 0x0F00) >> 4);
+            var op = opcode & 0x000F;
+
+            if (op == 0x0)
+            {
+                Registers[registerX] = Registers[registerY];
+            }
+            else if (op == 0x1)
+            {
+                Registers[registerX] |= Registers[registerY];
+            }
+            else if (op == 0x2)
+            {
+                Registers[registerX] &= Registers[registerY];
+            }
+            else if (op == 0x3)
+            {
+                Registers[registerX] ^= Registers[registerY];
+            }
+            else if (op == 0x4)
+            {
+                var sum = Registers[registerX] + Registers[registerY];
+                Registers[registerX] = (byte)sum;
+
+                // If we have overflowed the byte (255) then we set the register VF to 1
+                Registers[Register.VF] = (byte)(sum > byte.MaxValue ? 1 : 0);
+            }
+            else if (op == 0x5)
+            {
+                var sum = Registers[registerX] - Registers[registerY];
+                Registers[registerX] = (byte)sum;
+
+                // If we have underflowed the byte (255) then we set the register VF to 1
+                Registers[Register.VF] = (byte)(sum < byte.MinValue ? 1 : 0);
+            }
+            else if (op == 0x6)
+            {
+                Registers[registerX] >>= Registers[registerY];
+            }
+            else if (op == 0x7)
+            {
+                Registers[registerX] = (byte)(Registers[registerY] - Registers[registerX]);
+            }
+            else if (op == 0xE)
+            {
+                Registers[registerX] <<= Registers[registerY];
+            }
+        }
+
+        private void AddAndAssign(short opcode)
+        {
+            // Adds NN to the register X (0x7xnn)
+            var register = (Register)((opcode & 0x0F00) >> 8);
+            var value = (byte)(opcode & 0x00FF);
+
+            Registers[register] += value;
+        }
+
+        private void SetRegister(short opcode)
+        {
+            // Sets the register X to the value NN (0x6xnn)
+            var register = (Register)((opcode & 0x0F00) >> 8);
+            var value = (byte)(opcode & 0x00FF);
+
+            Registers[register] = value;
         }
 
         private void SkipIfRegistersEquals(short opcode)
@@ -123,7 +260,7 @@ namespace Chip8.NET
             var registerX = (Register)((opcode & 0x0F00) >> 8);
             var registerY = (Register)((opcode & 0x00F0) >> 4);
 
-            if (Registers[registerX] != Registers[registerY])
+            if (Registers[registerX] == Registers[registerY])
             {
                 // Skip next instruction. Opcode is 16 bytes so we increase by 2
                 ProgramCounter += 2;

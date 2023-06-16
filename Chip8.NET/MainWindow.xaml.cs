@@ -38,7 +38,7 @@ namespace Chip8.NET
                 Emulator.Cycle();
 
                 // Render
-                var bitmapSource = BitmapSource.Create(1, 1, Chip8Emulator.DisplayWidth, Chip8Emulator.DisplayHeight, PixelFormats.Indexed8, BitmapPalettes.Gray256, Emulator.Display, 2);
+                var bitmapSource = BitmapSource.Create(1, 1, 1, 1, PixelFormats.Indexed8, BitmapPalettes.Gray256, Emulator.Display, Chip8Emulator.DisplayWidth);
                 image.Source = bitmapSource;
             }
         }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 
 namespace Chip8.NET
 {
@@ -143,11 +144,115 @@ namespace Chip8.NET
             {
                 SetRegisterToRandom(opcode);
             }
+            else if (decode == 0xD)
+            {
+                Draw(opcode);
+            }
+            else if (decode == 0xE)
+            {
+                SkipOnKeyState(opcode);
+            }
+            else if (decode == 0xF)
+            {
+                MixtureOfThings(opcode);
+            }
+        }
+
+        private void MixtureOfThings(short opcode)
+        {
+            var register = (Register)(opcode & 0x0F00);
+            var op = opcode & 0x00FF;
+
+            if (op == 0x15)
+            {
+                DelayTimer = Registers[register];
+            }
+            else if (op == 0x18)
+            {
+                SoundTimer = Registers[register];
+            }
+            else if (op == 0x1E)
+            {
+                IndexRegister += Registers[register];
+            }
+            else if (op == 0x29)
+            {
+                throw new NotImplementedException();
+            }
+            else if (op == 0x33)
+            {
+                throw new NotImplementedException();
+            }
+            else if (op == 0x55)
+            {
+                throw new NotImplementedException();
+            }
+            else if (op == 0x65)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private void SkipOnKeyState(short opcode)
+        {
+            // Skip on key state (Ex
+            var register = (Register)(opcode & 0x0F00);
+            var key = (Key)Registers[register];
+            var op = opcode & 0x00FF;
+
+            if (op == 0x9E)
+            {
+                if (Keyboard.IsKeyDown(key))
+                {
+                    ProgramCounter += 2;
+                }
+            }
+            else if (op == 0xA1)
+            {
+                if (!Keyboard.IsKeyDown(key))
+                {
+                    ProgramCounter += 2;
+                }
+            }
+        }
+
+        private void Draw(short opcode)
+        {
+            // Draw sprite at coordinate register x and y with a fixed width of 8 pixels and a height of n pixels (Dxyn)
+            var registerX = (Register)((opcode & 0x0F00) >> 8);
+            var registerY = (Register)((opcode & 0x00F0) >> 4);
+            var height = opcode & 0x00F;
+            const int SpriteWidth = 8;
+
+            // Wrap if going beyond screen boundaries
+            byte x = (byte)(Registers[registerX] % DisplayWidth);
+            byte y = (byte)(Registers[registerY] % DisplayHeight);
+
+            for (int row = 0; row < height; row++)
+            {
+                byte spriteData = Memory[IndexRegister + row];
+
+                for (int col = 0; col < SpriteWidth; col++)
+                {
+                    byte spritePixel = (byte)(spriteData & (0x80 >> col));
+                    byte screenPixel = Display[(y + row) * DisplayWidth + (x + col)];
+
+                    if (spritePixel != 0)
+                    {
+                        if (screenPixel == 0xFF)
+                        {
+                            Registers[Register.VF] = 1;
+                        }
+
+                        Display[(y + row) * DisplayWidth + (x + col)] = 0xFF;
+                    }
+                }
+            }
         }
 
         private void SetRegisterToRandom(short opcode)
         {
-            // Set the register X to random value & nn (0xCxnn)
+            // Set the register X to random value & nn (Cxnn)
             var registerX = (Register)((opcode & 0x0F00) >> 8);
             var value = (short)(opcode & 0x00FF);
 
@@ -165,7 +270,7 @@ namespace Chip8.NET
 
         private void SetIndexRegister(short opcode)
         {
-            // Sets the I register to the value NNN (0xAnnn)
+            // Sets the I register to the value NNN (Annn)
             var memoryAddress = (short)(opcode & 0x0FFF);
             IndexRegister = memoryAddress;
         }

@@ -36,6 +36,11 @@ namespace Chip8.NET
         public Chip8Emulator(string filepath)
         {
             LoadROM(filepath);
+
+            foreach (var val in Enum.GetValues<Register>())
+            {
+                Registers[val] = 0;
+            }
         }
 
         // 4kb of memory
@@ -177,19 +182,19 @@ namespace Chip8.NET
             }
             else if (op == 0x29)
             {
-                throw new NotImplementedException();
+                // throw new NotImplementedException();
             }
             else if (op == 0x33)
             {
-                throw new NotImplementedException();
+                // throw new NotImplementedException();
             }
             else if (op == 0x55)
             {
-                throw new NotImplementedException();
+                // throw new NotImplementedException();
             }
             else if (op == 0x65)
             {
-                throw new NotImplementedException();
+                // throw new NotImplementedException();
             }
         }
 
@@ -292,7 +297,7 @@ namespace Chip8.NET
         {
             // Get the x and y register (8xyz)
             var registerX = (Register)((opcode & 0x0F00) >> 8);
-            var registerY = (Register)((opcode & 0x0F00) >> 4);
+            var registerY = (Register)((opcode & 0x00F0) >> 4);
             var op = opcode & 0x000F;
 
             if (op == 0x0)

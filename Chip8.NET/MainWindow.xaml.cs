@@ -28,7 +28,8 @@ namespace Chip8.NET
         {
             InitializeComponent();
 
-            Emulator = new Chip8Emulator("ROMS/IBM Logo.ch8");
+            // Emulator = new Chip8Emulator("ROMS/IBM Logo.ch8");
+            Emulator = new Chip8Emulator("ROMS/test_opcode.ch8");
             CompositionTarget.Rendering += UpdateTexture;
         }
 
@@ -39,9 +40,7 @@ namespace Chip8.NET
                 Emulator.Cycle();
 
                 // Render
-                var bytes = new byte[4] { 0xFF, 0x00, 0x00, 0xFF };
-                var bitmapSource = BitmapSource.Create(Chip8Emulator.DisplayWidth, Chip8Emulator.DisplayHeight, 1, 1, PixelFormats.Indexed8, BitmapPalettes.Gray256, Emulator.Display, Chip8Emulator.DisplayWidth);
-                image.Source = bitmapSource;
+                image.Source = BitmapSource.Create(Chip8Emulator.DisplayWidth, Chip8Emulator.DisplayHeight, 1, 1, PixelFormats.Indexed8, BitmapPalettes.Gray256, Emulator.Display, Chip8Emulator.DisplayWidth);
             }
         }
 

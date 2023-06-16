@@ -48,23 +48,25 @@ namespace Chip8.NET
         public IDictionary<Register, byte> Registers { get; private set; } = new Dictionary<Register, byte>();
 
         // 16 bit I register which is used mainly to store memory addresses
-        public short IndexRegister { get; private set; }
+        public ushort IndexRegister { get; private set; }
 
         // Stack is only used to store the return memory address of 16 bytes is fine
-        public short[] Stack { get; private set; } = new short[12];
+        public ushort[] Stack { get; private set; } = new ushort[12];
 
         // Pointer to where we are on the stack
         public byte StackPointer { get; private set; }
 
         // Stores where we are pointing to in memory
-        public short ProgramCounter { get; private set; }
+        public ushort ProgramCounter { get; private set; }
 
         // Display is 64x32 and monochrome colour
         public byte[] Display { get; private set; } = new byte[DisplayWidth * DisplayHeight];
 
-        public byte SoundTimer { get; private set; }
+        public byte SoundTimer { get; set; }
 
-        public byte DelayTimer { get; private set; }
+        public byte DelayTimer { get; set; }
+
+        public bool[] Keypad { get; private set; } = new bool[16];
 
         public void LoadROM(string filepath)
         {
@@ -76,10 +78,14 @@ namespace Chip8.NET
             ProgramCounter = StartAddress;
         }
 
+        private List<ushort> RanCodes = new List<ushort>();
+
         public void Cycle()
         {
             // Fetch instruction. Opcode is 16 bytes so we must current byte and the next byte in memory
-            short opcode = (short)((Memory[ProgramCounter] << 8) | Memory[ProgramCounter + 1]);
+            ushort opcode = (ushort)((Memory[ProgramCounter] << 8) | Memory[ProgramCounter + 1]);
+
+            RanCodes.Add(opcode);
 
             // Increment the program counter before we execute anything
             ProgramCounter += 2;
@@ -159,14 +165,22 @@ namespace Chip8.NET
             {
                 MixtureOfThings(opcode);
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        private void MixtureOfThings(short opcode)
+        private void MixtureOfThings(ushort opcode)
         {
             var register = (Register)((opcode & 0x0F00) >> 8);
             var op = opcode & 0x00FF;
 
-            if (op == 0x15)
+            if (op == 0x7)
+            {
+                Registers[register] = DelayTimer;
+            }
+            else if (op == 0x15)
             {
                 DelayTimer = Registers[register];
             }
@@ -211,32 +225,39 @@ namespace Chip8.NET
                     Registers[(Register)i] = Memory[IndexRegister + i];
                 }
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        private void SkipOnKeyState(short opcode)
+        private void SkipOnKeyState(ushort opcode)
         {
             // Skip on key state (Ex
-            var register = (Register)(opcode & 0x0F00);
-            var key = (Key)Registers[register];
+            var register = (Register)((opcode & 0x0F00) >> 8);
             var op = opcode & 0x00FF;
 
             if (op == 0x9E)
             {
-                if (Keyboard.IsKeyDown(key))
+                if (Keypad[Registers[register]])
                 {
                     ProgramCounter += 2;
                 }
             }
             else if (op == 0xA1)
             {
-                if (!Keyboard.IsKeyDown(key))
+                if (!Keypad[Registers[register]])
                 {
                     ProgramCounter += 2;
                 }
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        private void Draw(short opcode)
+        private void Draw(ushort opcode)
         {
             // Draw sprite at coordinate register x and y with a fixed width of 8 pixels and a height of n pixels (Dxyn)
             var registerX = (Register)((opcode & 0x0F00) >> 8);
@@ -270,32 +291,32 @@ namespace Chip8.NET
             }
         }
 
-        private void SetRegisterToRandom(short opcode)
+        private void SetRegisterToRandom(ushort opcode)
         {
             // Set the register X to random value & nn (Cxnn)
             var registerX = (Register)((opcode & 0x0F00) >> 8);
-            var value = (short)(opcode & 0x00FF);
+            var value = (ushort)(opcode & 0x00FF);
 
             var random = new Random();
             var rnd = random.Next(255) & value;
             Registers[registerX] = (byte)rnd;
         }
 
-        private void JumpToAddressPlusRegister(short opcode)
+        private void JumpToAddressPlusRegister(ushort opcode)
         {
             // Jump to memory address NNN (Bnnn)
-            var memoryAddress = (short)(opcode & 0x0FFF);
-            ProgramCounter = (short)(memoryAddress + Registers[Register.V0]);
+            var memoryAddress = (ushort)(opcode & 0x0FFF);
+            ProgramCounter = (ushort)(memoryAddress + Registers[Register.V0]);
         }
 
-        private void SetIndexRegister(short opcode)
+        private void SetIndexRegister(ushort opcode)
         {
             // Sets the I register to the value NNN (Annn)
-            var memoryAddress = (short)(opcode & 0x0FFF);
+            var memoryAddress = (ushort)(opcode & 0x0FFF);
             IndexRegister = memoryAddress;
         }
 
-        private void SkipIfRegistersNotEquals(short opcode)
+        private void SkipIfRegistersNotEquals(ushort opcode)
         {
             // Gets the register X and register Y (9xy0)
             var registerX = (Register)((opcode & 0x0F00) >> 8);
@@ -308,7 +329,7 @@ namespace Chip8.NET
             }
         }
 
-        private void RegisterOperations(short opcode)
+        private void RegisterOperations(ushort opcode)
         {
             // Get the x and y register (8xyz)
             var registerX = (Register)((opcode & 0x0F00) >> 8);
@@ -359,9 +380,13 @@ namespace Chip8.NET
             {
                 Registers[registerX] <<= 1;
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        private void AddAndAssign(short opcode)
+        private void AddAndAssign(ushort opcode)
         {
             // Adds NN to the register X (0x7xnn)
             var register = (Register)((opcode & 0x0F00) >> 8);
@@ -370,7 +395,7 @@ namespace Chip8.NET
             Registers[register] += value;
         }
 
-        private void SetRegister(short opcode)
+        private void SetRegister(ushort opcode)
         {
             // Sets the register X to the value NN (0x6xnn)
             var register = (Register)((opcode & 0x0F00) >> 8);
@@ -379,7 +404,7 @@ namespace Chip8.NET
             Registers[register] = value;
         }
 
-        private void SkipIfRegistersEquals(short opcode)
+        private void SkipIfRegistersEquals(ushort opcode)
         {
             // Gets the register X and register Y (5xy0)
             var registerX = (Register)((opcode & 0x0F00) >> 8);
@@ -392,7 +417,7 @@ namespace Chip8.NET
             }
         }
 
-        private void SkipIfNotEquals(short opcode)
+        private void SkipIfNotEquals(ushort opcode)
         {
             // Pull out register and value from opcode (4xnn)
             var register = (Register)((opcode & 0x0F00) >> 8);
@@ -405,7 +430,7 @@ namespace Chip8.NET
             }
         }
 
-        private void SkipIfEquals(short opcode)
+        private void SkipIfEquals(ushort opcode)
         {
             // Pull out register and value from opcode (3xnn)
             var register = (Register)((opcode & 0x0F00) >> 8);
@@ -418,27 +443,32 @@ namespace Chip8.NET
             }
         }
 
-        private void CallFunction(short opcode)
+        private void CallFunction(ushort opcode)
         {
             // Gets the first 12 bits of the opcode (0x2nnn)
-            var memoryAddress = (short)(opcode & 0x0FFF);
+            var memoryAddress = (ushort)(opcode & 0x0FFF);
 
-            Stack[StackPointer] = memoryAddress;
+            Stack[StackPointer] = ProgramCounter;
             StackPointer++;
+
+            ProgramCounter = memoryAddress;
         }
 
-        private void JumpToAddress(short opcode)
+        private void JumpToAddress(ushort opcode)
         {
             // Gets the first 12 bits of the opcode (0x1nnn)
-            var memoryAddress = (short)(opcode & 0x0FFF);
+            var memoryAddress = (ushort)(opcode & 0x0FFF);
             ProgramCounter = memoryAddress;
         }
 
         private void ReturnFromFunction()
         {
             // Pop the stack so set the program counter to point to the memory address set in the stack
-            ProgramCounter = Stack[StackPointer];
-            StackPointer--;
+            if (StackPointer > 0)
+            {
+                StackPointer--;
+                ProgramCounter = Stack[StackPointer];
+            }
         }
 
         private void ClearScreen()

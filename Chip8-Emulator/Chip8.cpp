@@ -337,6 +337,7 @@ void Chip8::Cycle()
 				m_ProgramCounter += 2;
 			}
 		}
+
 		else if (val == 0xA1) // EX9E
 		{
 			// Skips the next instruction if the key stored in VX is not pressed (usually the next instruction is a jump to skip a code block)

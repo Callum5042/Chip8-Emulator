@@ -19,15 +19,7 @@ namespace Chip8.NET
         {
             InitializeComponent();
 
-            // Emulator = new Chip8Emulator("ROMS/IBM Logo.ch8");
             Emulator = new Chip8Emulator("ROMS/breakout.ch8");
-
-            // Emulator = new Chip8Emulator("ROMS/1-chip8-logo.ch8");
-            // Emulator = new Chip8Emulator("ROMS/5-quirks.ch8");
-            // Emulator = new Chip8Emulator("ROMS/6-keypad.ch8");
-
-            // CompositionTarget.Rendering += MainLoop;
-
             Dispatcher.BeginInvoke(() =>
             {
                 CompositionTarget.Rendering += MainLoop;
@@ -41,14 +33,14 @@ namespace Chip8.NET
                 // Pause when delay timer is active
                 if (Emulator.DelayTimer > 0)
                 {
-                    Task.Delay(Emulator.DelayTimer * 10).Wait();
+                    Task.Delay(Emulator.DelayTimer).Wait();
                     Emulator.DelayTimer = 0;
                 }
 
                 // Play sound
                 if (Emulator.SoundTimer > 0)
                 {
-                    Console.Beep(5000, Emulator.SoundTimer * 10);
+                    Console.Beep(5000, Emulator.SoundTimer);
                     Emulator.SoundTimer = 0;
                 }
 

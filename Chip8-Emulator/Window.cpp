@@ -53,7 +53,7 @@ bool Window::Create(int width, int height)
 	wc.hInstance = hInstance;
 	wc.hIcon = LoadIcon(0, IDI_APPLICATION);
 	wc.hCursor = LoadCursor(0, IDC_ARROW);
-	wc.lpszClassName = L"RoveEngine";
+	wc.lpszClassName = L"Chip8";
 
 	if (!RegisterClass(&wc))
 	{
